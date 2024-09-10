@@ -33,14 +33,17 @@ class CommentServiceTest {
     @InjectMocks
     private CommentService commentService;
 
+
+    // 레벨 2-7 테스트 연습
     @Test
     public void comment_등록_중_할일을_찾지_못해_에러가_발생한다() {
         // given
-        long todoId = 1;
+        long todoId = 1L; // 롱타입은 L을 붙이자?
         CommentSaveRequest request = new CommentSaveRequest("contents");
         AuthUser authUser = new AuthUser(1L, "email", UserRole.USER);
 
-        given(todoRepository.findById(anyLong())).willReturn(Optional.empty());
+        // todo가 존재하지 않을 때 -> findById에 todoId 넣기
+        given(todoRepository.findById(todoId)).willReturn(Optional.empty());
 
         // when
         ServerException exception = assertThrows(ServerException.class, () -> {

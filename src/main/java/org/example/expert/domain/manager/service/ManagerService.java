@@ -29,12 +29,18 @@ public class ManagerService {
     private final UserRepository userRepository;
     private final TodoRepository todoRepository;
 
+
+    // 2-8 테스트 todo의_user가_null인_경우_예외가_발생한다기 성공할 수 있게 서비스를 수정
     @Transactional
     public ManagerSaveResponse saveManager(AuthUser authUser, long todoId, ManagerSaveRequest managerSaveRequest) {
-        // 일정을 만든 유저
-        User user = User.fromAuthUser(authUser);
+        // 일정을 만든 유저 확인
         Todo todo = todoRepository.findById(todoId)
                 .orElseThrow(() -> new InvalidRequestException("Todo not found"));
+
+        if (todo.getUser() == null) {
+            throw new InvalidRequestException("해당 일정을 만든 유저가 유효하지 않습니다."); // user가 null일 경우 처리
+        }
+        User user = User.fromAuthUser(authUser);
 
         if (!ObjectUtils.nullSafeEquals(user.getId(), todo.getUser().getId())) {
             throw new InvalidRequestException("담당자를 등록하려고 하는 유저가 일정을 만든 유저가 유효하지 않습니다.");
@@ -81,7 +87,11 @@ public class ManagerService {
         Todo todo = todoRepository.findById(todoId)
                 .orElseThrow(() -> new InvalidRequestException("Todo not found"));
 
-        if (todo.getUser() == null || !ObjectUtils.nullSafeEquals(user.getId(), todo.getUser().getId())) {
+        if (todo.getUser() == null) {
+            throw new InvalidRequestException("해당 일정을 만든 유저 정보가 없습니다.");  // 좀 더 구체적인 메시지
+        }
+
+        if (!ObjectUtils.nullSafeEquals(user.getId(), todo.getUser().getId())) {
             throw new InvalidRequestException("해당 일정을 만든 유저가 유효하지 않습니다.");
         }
 
