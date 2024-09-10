@@ -36,14 +36,14 @@ public class ManagerController {
         return ResponseEntity.ok(managerService.getManagers(todoId));
     }
 
+    // 레벨 1-4 - JWT 유효성 검사 로직 수정
+    // 필터에서 설정된 userId 정보를 사용
     @DeleteMapping("/todos/{todoId}/managers/{managerId}")
     public void deleteManager(
-            @RequestHeader("Authorization") String bearerToken,
             @PathVariable long todoId,
-            @PathVariable long managerId
+            @PathVariable long managerId,
+            @RequestAttribute("userId") long userId  // 필터에서 추출한 userId 사용
     ) {
-        Claims claims = jwtUtil.extractClaims(bearerToken.substring(7));
-        long userId = Long.parseLong(claims.getSubject());
         managerService.deleteManager(userId, todoId, managerId);
     }
 }
